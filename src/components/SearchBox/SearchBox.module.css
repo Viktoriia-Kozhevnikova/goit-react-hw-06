@@ -1,0 +1,36 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.label {
+    color: black;
+    font-size: 25px;
+    margin-bottom: 10px;
+}
+
+.input {
+    width: 300px;
+    height: 30px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 5px;
+    border: 2px solid rgb(20, 20, 20);
+    outline: none;
+    color: #000;
+    font-size: 15px;
+}
+
+.input:hover,
+.input:focus {
+    border: 2px solid rgb(0, 0, 0);
+}
+
+.error {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+    font-weight: bold;
+}

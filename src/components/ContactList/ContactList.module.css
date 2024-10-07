@@ -1,0 +1,21 @@
+.list {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0;
+
+}
+
+.item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 400px;
+    gap: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid black;
+}
