@@ -1,38 +1,29 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux'; 
 import { addContact, selectContacts } from '/src/redux/contactsSlice.js';
 import { nanoid } from 'nanoid';
 import s from '/src/components/ContactForm/ContactForm.module.css';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import * as Yup from 'yup';
 import { useState } from 'react';
 
 const ContactForm = () => {
   const dispatch = useDispatch();
   const contacts = useSelector(selectContacts);
   const [errorMessage, setErrorMessage] = useState('');
-  const [numberInputClass, setNumberInputClass] = useState('');
 
-  const handleInput = (e) => {
-    const inputValue = e.target.value;
+  const contactSchema = Yup.object().shape({
+    name: Yup.string()
+      .min(3, 'Too Short!')
+      .max(50, 'Too Long!')
+      .required('Required'),
+    number: Yup.string()
+      .matches(/^\d+$/, 'Number must contain only digits.')
+      .min(7, 'The number must be at least 7 digits.')
+      .required('Required'),
+  });
 
-    if (/[^0-9]/.test(inputValue)) {
-      setErrorMessage('Please enter a number!');
-      e.target.value = inputValue.replace(/\D/g, '');
-    } else {
-      setErrorMessage('');
-    }
-
-    if (inputValue.length >= 7) {
-      setNumberInputClass(s.valid);
-    } else if (inputValue.length > 0) {
-      setNumberInputClass(s.invalid);
-    } else {
-      setNumberInputClass('');
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const name = e.target.name.value;
-    const number = e.target.number.value;
+  const handleSubmit = (values, { resetForm }) => {
+    const { name, number } = values;
 
     const isDuplicate = contacts.some(
       (contact) => contact.name === name || contact.number === number
@@ -43,11 +34,6 @@ const ContactForm = () => {
       return;
     }
 
-    if (number.length < 7) {
-      alert('The number must be at least 7 digits.');
-      return;
-    }
-
     const newContact = {
       id: nanoid(),
       name,
@@ -55,32 +41,42 @@ const ContactForm = () => {
     };
 
     dispatch(addContact(newContact));
-    event.target.reset();
+    resetForm();
     setErrorMessage('');
-    setNumberInputClass('');
   };
 
   return (
-    <div className={s.container}>
-      <form className={s.form} onSubmit={handleSubmit}>
-        <label className={s.label}>Name</label>
-        <input className={s.input} name='name' type='text' required />
-        <label className={s.label}>Number</label>
-        <input
-          className={`${s.input} ${numberInputClass}`}
-          name='number'
-          type='tel'
-          required
-          minLength='7'
-          onInput={handleInput}
-        />
-        {errorMessage && <p className={s.error}>{errorMessage}</p>}
-        <button className={s.btn} type='submit'>
-          Add contact
-        </button>
-      </form>
-    </div>
+    <Formik
+      initialValues={{ name: '', number: '' }}
+      validationSchema={contactSchema}
+      onSubmit={handleSubmit}
+    >
+      {({ errors, touched }) => (
+        <Form className={s.form}>
+          <label className={s.label}>Name</label>
+          <Field
+            name="name"
+            type="text"
+            className={`${s.input} ${errors.name && touched.name ? s.invalid : ''}`}
+          />
+          <ErrorMessage name="name" component="span" className={s.error} />
+
+          <label className={s.label}>Number</label>
+          <Field
+            name="number"
+            type="tel"
+            className={`${s.input} ${errors.number && touched.number ? s.invalid : ''}`}
+          />
+          <ErrorMessage name="number" component="span" className={s.error} />
+
+          {errorMessage && <p className={s.error}>{errorMessage}</p>}
+
+          <button type="submit" className={s.btn}>Add contact</button>
+        </Form>
+      )}
+    </Formik>
   );
 };
 
 export default ContactForm;
+
